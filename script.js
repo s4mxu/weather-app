@@ -20,13 +20,14 @@ const currentTemp = document.getElementById('current-temp');
 const weatherIcon = document.getElementById('weather-icon');
 const weatherDesc = document.getElementById('weather-description');
 const feelsLike = document.getElementById('feels-like');
-const humidity = document.getElementById('humidity'); // CORRIGIDO: 2 'm'
+const humidity = document.getElementById('humidity');
 const windSpeed = document.getElementById('wind-speed');
 const pressure = document.getElementById('pressure');
 const forecastContainer = document.getElementById('forecast-container');
 const lastUpdate = document.getElementById('last-update');
 const loading = document.getElementById('loading');
-const suggestions = document.querySelectorAll('.suggestion'); // CORRIGIDO
+const suggestions = document.querySelectorAll('.suggestion');
+const themeToggle = document.getElementById('theme-toggle');
 
 // ======================
 // FUNÇÕES AUXILIARES
@@ -201,6 +202,11 @@ function updateCurrentWeather(data) {
     pressure.textContent = `${data.main.pressure} hPa`;
 
     updateLastUpdateTime();
+
+    // Atualizar tema baseado no horário (opcional)
+    if (data.sys && data.sys.sunrise && data.sys.sunset) {
+        updateThemeBasedOnTime(data.sys.sunrise, data.sys.sunset);
+    }
 }
 
 // Atualizar previsão
@@ -344,6 +350,9 @@ suggestions.forEach(suggestion => {
     });
 });
 
+// Tema
+themeToggle.addEventListener('click', toggleTheme);
+
 // ======================
 // INICIALIZAÇÃO
 // ======================
@@ -356,4 +365,64 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Atualizar hora periodicamente
     setInterval(updateLastUpdateTime, 60000); // A cada minuto
+
+    // Inicializar tema
+    initTheme();
 });
+
+// ======================
+// CONTROLE DE TEMA
+// ======================
+
+// Elementos do tema
+const themeIcon = themeToggle.querySelector('i');
+
+// Verificar tema salvo ou preferência do sistema
+function initTheme() {
+    const savedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    // Se tem tema salvo, usa ele. Senão, usa preferência do sistema.
+    if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+        enableDarkMode();
+    } else {
+        enableLightMode();
+    }
+}
+
+// Ativar modo escuro
+function enableDarkMode() {
+    document.body.classList.add('dark-mode');
+    themeIcon.className = 'fas fa-sun';
+    themeToggle.innerHTML = '<i class="fas fa-sun"></i> Modo Claro';
+    localStorage.setItem('theme', 'dark');
+}
+
+// Ativar modo claro
+function enableLightMode() {
+    document.body.classList.remove('dark-mode');
+    themeIcon.className = 'fas fa-moon';
+    themeToggle.innerHTML = '<i class="fas fa-moon"></i> Modo Escuro';
+    localStorage.setItem('theme', 'light');
+}
+
+// Alternar tema
+function toggleTheme() {
+    if (document.body.classList.contains('dark-mode')) {
+        enableLightMode();
+    } else {
+        enableDarkMode();
+    }
+}
+
+// Tema automático baseado no horário (opcional)
+function updateThemeBasedOnTime(sunrise, sunset) {
+    const now = Math.floor(Date.now() / 1000);
+    const isNight = now < sunrise || now > sunset;
+
+    if (isNight && !document.body.classList.contains('dark-mode')) {
+        enableDarkMode();
+    } else if (!isNight && document.body.classList.contains('dark-mode')) {
+        enableLightMode();
+    }
+}

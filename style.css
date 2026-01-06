@@ -435,6 +435,146 @@ footer i.fa-heart {
     }
 }
 
+/* ====================== */
+/* TEMA ESCURO */
+/* ====================== */
+
+body.dark-mode {
+    background: linear-gradient(135deg, #0f2027 0%, #203a43 100%);
+    color: #e2e8f0;
+}
+
+body.dark-mode .container {
+    background: #1a1a2e;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-mode header h1 {
+    color: #63b3ed;
+}
+
+body.dark-mode header h1 i {
+    color: #f6ad55;
+}
+
+body.dark-mode .subtitle {
+    color: #a0aec0;
+}
+
+body.dark-mode .weather-card {
+    background: linear-gradient(135deg, #16213e 0%, #0f3460 100%);
+    border-color: #2d3748;
+}
+
+body.dark-mode #city-input {
+    background: #2d3748;
+    border-color: #4a5568;
+    color: #e2e8f0;
+}
+
+body.dark-mode #city-input:focus {
+    border-color: #63b3ed;
+    box-shadow: 0 0 0 3px rgba(99, 179, 237, 0.1);
+}
+
+body.dark-mode #search-btn {
+    background: linear-gradient(135deg, #2b6cb0, #3182ce);
+}
+
+body.dark-mode .suggestion {
+    background: #2d3748;
+    color: #90cdf4;
+}
+
+body.dark-mode .suggestion:hover {
+    background: #4c51bf;
+    color: white;
+}
+
+body.dark-mode .detail {
+    background: #2d3748;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+body.dark-mode .detail i {
+    color: #63b3ed;
+}
+
+body.dark-mode .detail p:first-child {
+    color: #a0aec0;
+}
+
+body.dark-mode .detail p:last-child {
+    color: #e2e8f0;
+}
+
+body.dark-mode .forecast-day {
+    background: #2d3748;
+}
+
+body.dark-mode .forecast-day .day {
+    color: #90cdf4;
+}
+
+body.dark-mode .info-card {
+    background: #2d3748;
+}
+
+body.dark-mode .info-card h3 {
+    color: #68d391;
+}
+
+body.dark-mode .tip {
+    background: #2d4369;
+    border-left-color: #f6ad55;
+}
+
+body.dark-mode footer {
+    border-top-color: #2d3748;
+    color: #a0aec0;
+}
+
+/* Botão de tema */
+.theme-toggle {
+    position: absolute;
+    top: 30px;
+    right: 30px;
+    padding: 10px 20px;
+    background: #4a5568;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+}
+
+.theme-toggle:hover {
+    background: #2d3748;
+    transform: translateY(-2px);
+}
+
+body.dark-mode .theme-toggle {
+    background: #f6ad55;
+    color: #1a202c;
+}
+
+body.dark-mode .theme-toggle:hover {
+    background: #ed8936;
+}
+
+/* Ajuste para mobile */
+@media (max-width: 768px) {
+    .theme-toggle {
+        position: static;
+        margin: 10px auto;
+        display: block;
+    }
+}
+
 @media (max-width:480px) {
     .weather-details {
         grid-template-columns: 1fr;
@@ -442,5 +582,20 @@ footer i.fa-heart {
 
     .forecast-container {
         grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .temperature {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #current-temp {
+        font-size: 3.5rem;
+    }
+
+    button {
+        min-height: 44px; /* Tamanho mínimo para dedo */
     }
 }
