@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clima Agora - Previsão do Tempo</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-cloud-sun"></i> Clima Agora</h1>
+            <p class="subtitle">Previsão do tempo em tempo real</p>
+        </header>
+
+        <main>
+            <div class="search-container">
+                <div class="search-box">
+                    <input type="text" id="city-input" placeholder="Digite o nome da cidade...">
+                    <button id="search-btn">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                    <button id="location-btn" title="Usar minha localização">
+                        <i class="fas fa-location-arrow"></i>
+                    </button>
+                </div>
+                <div class="suggestions">
+                    <span class="suggestion" data-city="São Paulo">São Paulo</span>
+                    <span class="suggestion" data-city="Rio de Janeiro">Rio de Janeiro</span>
+                    <span class="suggestion" data-city="Belo Horizonte">Belo Horizonte</span>
+                    <span class="suggestion" data-city="Brasília">Brasília</span>
+                    <span class="suggestion" data-city="Salvador">Salvador</span>
+                </div>
+            </div>
+
+            <div class="weather-card">
+                <div class="current-weather">
+                    <div class="location">
+                        <h2 id="city-name">--</h2>
+                        <p id="current-date">--</p>
+                    </div>
+
+                    <div class="weather-main">
+                        <div class="temperature">
+                            <span id="current-temp">--</span>
+                            <span class="unit">ºC</span>
+                        </div>
+                        <div class="weather-icon">
+                            <i id="weather-icon" class="fas fa-sun"></i>
+                            <p id="weather-description">--</p>
+                        </div>
+                    </div>
+
+                    <div class="weather-details">
+                        <div class="detail">
+                            <i class="fas fa-temperature-high"></i>
+                            <div>
+                                <p>Sensação</p>
+                                <p id="feels-like">-- ºC</p>
+                            </div>
+                        </div>
+                        <div class="detail">
+                            <i class="fas fa-tint"></i>
+                            <div>
+                                <p>Umidade</p>
+                                <p id="humidity">-- %</p>
+                            </div>
+                        </div>
+                        <div class="detail">
+                            <i class="fas fa-wind"></i>
+                            <div>
+                                <p>Vento</p>
+                                <p id="wind-speed">-- km/h</p>
+                            </div>
+                        </div>
+                        <div class="detail">
+                            <i class="fas fa-compress-alt"></i>
+                            <div>
+                                <p>Pressão</p>
+                                <p id="pressure">-- hPa</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="forecast">
+                    <h3><i class="fas fa-calendar-alt"></i> Próximos Dias</h3>
+                    <div class="forecast-container" id="forecast-container">
+
+                        <div class="forecast-day">
+                            <p>Carregando...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <h3><i class="fas fa-info-circle"></i> Como funciona?</h3>
+                <p>Este app usa dados da <strong>OpenWeatherMap API</strong> para mostrar informações meterológicas em tempo real e previsão para os próximos dias.</p>
+                <p class="tip"><i class="fas fa-lightbulb"></i> <strong>Dica:</strong> Clique em uma cidade sugerida ou use o botão de localização automática.</p>
+            </div>
+        </main>
+
+        <footer>
+            <p>Desenvolvido com <i class="fas fa-heart"></i> usando OpenWeather API</p>
+            <p class="update">Última atualização: <span id="last-update">--:--</span></p>
+        </footer>
+    </div>
+
+
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>Buscando dados do clima...</p>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
