@@ -28,6 +28,9 @@ const lastUpdate = document.getElementById('last-update');
 const loading = document.getElementById('loading');
 const suggestions = document.querySelectorAll('.suggestion');
 const themeToggle = document.getElementById('theme-toggle');
+// NOVO: Elementos do Sol
+const sunriseEl = document.getElementById('sunrise');
+const sunsetEl = document.getElementById('sunset');
 
 // ======================
 // FUNÇÕES AUXILIARES
@@ -111,6 +114,24 @@ function showLoading() {
 
 function hideLoading() {
     loading.style.display = 'none';
+}
+
+// Formatar hora (HH:MM) a partir de timestamp UNIX
+function formatTime(timestamp) {
+    const date = new Date(timestamp * 1000);
+    return date.toLocaleDateString('pt-BR', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false // formato 24h
+    });
+}
+
+// Calcular duração do dia (BÔNUS)
+function calculateDaylight(sunrise, sunset) {
+    const daylightSeconds = sunset - sunrise;
+    const hours = Math.floor(daylightSeconds / 3600);
+    const minutes = Math.floor((daylightSeconds % 3600) / 60);
+    return `${hours}h ${minutes}min`;
 }
 
 // ======================
@@ -200,6 +221,24 @@ function updateCurrentWeather(data) {
     humidity.textContent = `${data.main.humidity} %`;
     windSpeed.textContent = `${msToKmh(data.wind.speed)} km/h`;
     pressure.textContent = `${data.main.pressure} hPa`;
+
+    // ====== NOVO: Nascer e Pôr do Sol ======
+    if (data.sys && data.sys.sunrise && data.sys.sunset) {
+        // Formatar e mostrar horários
+        sunriseEl.textContent = formatTime(data.sys.sunrise);
+        sunsetEl.textContent = formatTime(data.sys.sunset);
+
+        // Mostrar duração do dia no console
+        const daylight = calculateDaylight(data.sys.sunrise, data.sys.sunset);
+        console.log(`🌅 Nascer: ${formatTime(data.sys.sunrise)} | 🌇 Pôr: ${formatTime(data.sys.sunset)} | ☀️ Dia: ${daylight}`);
+
+        // Atualizar tema baseado no horário local do usuário
+        updateThemeBasedOnTime(data.sys.sunrise, data.sys.sunset);
+    } else {
+        // Fallback caso não tenha dados
+        sunriseEl.textContent = '--:--';
+        sunsetEl.textContent = '--:--';
+    }
 
     updateLastUpdateTime();
 
