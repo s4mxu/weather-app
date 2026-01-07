@@ -89,14 +89,17 @@
                             <div>
                                 <p>Pressão</p>
                                 <p id="pressure">-- hPa</p>
+                            </div>
+                        </div>
 
                         <div class="detail sun-detail">
-                            <i class="fa fa-sunrise"></i>
+                            <i class="fas fa-sunrise"></i>
                             <div>
                                 <p>Nascer do Sol</p>
                                 <p id="sunrise">--:--</p>
                             </div>
                         </div>
+
                         <div class="detail sun-detail">
                             <i class="fas fa-sunset"></i>
                             <div>
@@ -104,10 +107,7 @@
                                 <p id="sunset">--:--</p>
                             </div>
                         </div>
-                            </div>
-                        </div>
                     </div>
-                </div>
 
                 <div class="forecast">
                     <h3><i class="fas fa-calendar-alt"></i> Próximos Dias</h3>
@@ -138,7 +138,35 @@
         <div class="spinner"></div>
         <p>Buscando dados do clima...</p>
     </div>
-    
-    <script src="script.js"></script>
+
+    <!-- SIDEBAR DE FAVORITOS-->
+     <div class="favorites-sidebar" id="favorites-sidebar">
+        <div class="sidebar-header">
+            <h3><i class="fas fa-heart"></i> Cidades Favoritas</h3>
+            <button class="close-sidebar" id="close-sidebar">&times;</button>
+        </div>
+
+        <div class="favorites-container">
+            <ul id="favorites-list">
+                <!-- Lista será gerada pelo JavaScript-->
+                 <li class="empty-message">Nenhuma cidade favoritada ainda</li>
+            </ul>
+        </div>
+
+        <div class="sidebar-footer">
+            <button id="clear-favorites" class="clear-btn">
+                <i class="fas fa-trash"></i> Limpar tudo
+            </button>
+        </div>
+     </div>
+
+     <!-- BOTÃO PARA ABRIR SIDEBAR-->
+      <button id="open-sidebar" class="open-sidebar-btn" title="Ver favoritos">
+        <i class="fas fa-heart"></i>
+        <span class="favorites-count" id="favorites-count">0</span>
+      </button>
+
+      <script src="script.js"></script>
+      
 </body>
 </html>

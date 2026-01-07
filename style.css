@@ -742,3 +742,246 @@ body.dark-mode #sunset {
 body.dark-mode .notification {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
+
+/* ====================== */
+/* SIDEBAR DE FAVORITOS */
+/* ====================== */
+
+/* Botão para abrir sidebar */
+.open-sidebar-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+    z-index: 100;
+    transition: all 0.3s;
+}
+
+.open-sidebar-btn:hover {
+    transform: scale(1.1) rotate(10deg);
+    box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+}
+
+.favorites-count {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #1e3c72;
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+/* Sidebar */
+.favorites-sidebar {
+    position: fixed;
+    top: 0;
+    right: -350px;
+    width: 320px;
+    height: 100vh;
+    background: white;
+    box-shadow: -5px 0 25px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    transition: right 0.3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+}
+
+.favorites-sidebar.open {
+    right: 0;
+}
+
+.sidebar-header {
+    padding: 20px;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sidebar-header h3 {
+    margin: 0;
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.close-sidebar {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 2rem;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    transition: transform 0.2s;
+}
+
+.close-sidebar:hover {
+    transform: scale(1.2);
+}
+
+/* Lista de favoritos */
+.favorites-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+#favorites-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#favorites-list li {
+    padding: 15px;
+    margin-bottom: 10px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-left: 4px solid #e74c3c;
+}
+
+#favorites-list li:hover {
+    background: #e9ecef;
+    transform: translateX(-5px);
+}
+
+#favorites-list li .city-name {
+    font-weight: 600;
+    color: #333;
+}
+
+#favorites-list li .remove-btn {
+    background: none;
+    border: none;
+    color: #e74c3c;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 5px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+#favorites-list li .remove-btn:hover {
+    background: rgba(231, 76, 60, 0.1);
+    transform: scale(1.2);
+}
+
+.empty-message {
+    text-align: center;
+    color: #6c757d;
+    font-style: italic;
+    padding: 30px 20px !important;
+    border-left: 4px solid #6c757d !important;
+}
+
+.empty-message:hover {
+    transform: none !important;
+    background: #f8f9fa !important;
+}
+
+/* Rodapé da sidebar */
+.sidebar-footer {
+    padding: 20px;
+    border-top: 1px solid #dee2e6;
+}
+
+.clear-btn {
+    width: 100%;
+    padding: 12px;
+    background: #f8f9fa;
+    color: #e74c3c;
+    border: 2px solid #e74c3c;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s;
+}
+
+.clear-btn:hover {
+    background: #e74c3c;
+    color: white;
+}
+
+/* Tema escuro */
+body.dark-mode .favorites-sidebar {
+    background: #1a1a2e;
+}
+
+body.dark-mode .sidebar-header {
+    background: linear-gradient(135deg, #0f2027, #203a43);
+}
+
+body.dark-mode #favorites-list li {
+    background: #2d3748;
+    border-left-color: #f6ad55;
+}
+
+body.dark-mode #favorites-list li .city-name {
+    color: #e2e8f0;
+}
+
+body.dark-mode #favorites-list li:hover {
+    background: #4a5568;
+}
+
+body.dark-mode .empty-message {
+    color: #a0aec0;
+    border-left-color: #a0aec0;
+}
+
+body.dark-mode .clear-btn {
+    background: #2d3748;
+    border-color: #f6ad55;
+    color: #f6ad55;
+}
+
+body.dark-mode .clear-btn:hover {
+    background: #f6ad55;
+    color: #1a202c;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .favorites-sidebar {
+        width: 100%;
+        right: -100%;
+    }
+
+    .open-sidebar-btn {
+        bottom: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        font-size: 1.3rem;
+    }
+}

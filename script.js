@@ -34,6 +34,14 @@ const sunsetEl = document.getElementById('sunset');
 // NOVO: Botão de favorito
 const favoriteBtn = document.getElementById('favorite-btn');
 const favoriteIcon = favoriteBtn ? favoriteBtn.querySelector('i') : null;
+// NOVO: Sidebar de favoritos
+const favoritesSidebar = document.getElementById('favorites-sidebar');
+const favoritesList = document.getElementById('favorites-list');
+const openSidebarBtn = document.getElementById('open-sidebar');
+const closeSidebarBtn = document.getElementById('close-sidebar');
+const clearFavoritesBtn = document.getElementById('clear-favorites');
+const favoritesCountEl = document.getElementById('favorites-count');
+
 
 // ======================
 // FUNÇÕES AUXILIARES
@@ -248,8 +256,6 @@ function updateCurrentWeather(data) {
         sunsetEl.textContent = '--:--';
     }
 
-    updateLastUpdateTime();
-
     // Atualizar tema baseado no horário (opcional)
     if (data.sys && data.sys.sunrise && data.sys.sunset) {
         updateThemeBasedOnTime(data.sys.sunrise, data.sys.sunset);
@@ -420,6 +426,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Inicializar tema
     initTheme();
+
+    // Inicializar sidebar de favoritos
+    initFavoritesSidebar();
+
+    // Atualizar contador inicial
+    updateFavoritesList();
 });
 
 // ======================
@@ -523,7 +535,7 @@ function toggleFavorite() {
     }
 
     saveFavorites(favorites);
-    updateFavoritesList(); // Vamos criar esta função depois
+    updateFavoritesList(); // ATUALIZA A SIDEBAR
 }
 
 // Atualizar aparência o botão
@@ -578,4 +590,119 @@ function showNotification(message, type = 'info') {
         notification.style.animation = 'slideOut 0.3s ease-out';
         setTimeout(() => notification.remove(), 300);
     }, 3000);
+}
+
+// ======================
+// SIDEBAR DE FAVORITOS
+// ======================
+
+// Abrir/fechar sidebar
+function toggleSidebar() {
+    favoritesSidebar.classList.toggle('open');
+}
+
+// Atualizar lista de favoritos na sidebar
+function updateFavoritesList() {
+    const favorites = loadFavorites();
+
+    // Atualizar contador
+    favoritesCountEl.textContent = favorites.length;
+
+    // Limpar lista
+    favoritesList.innerHTML = '';
+
+    if (favorites.length === 0) {
+        // Mostrar mensagem de vazio
+        const emptyItem = document.createElement('li');
+        emptyItem.className = 'empty-message';
+        emptyItem.textContent = 'Nenhuma cidade favoritada ainda';
+        favoritesList.appendChild(emptyItem);
+        return;
+    }
+
+    // Adicionar cada favorito
+    favorites.forEach(city => {
+        const listItem = document.createElement('li');
+
+        listItem.innerHTML = `
+            <span class="city-name">${city}</span>
+            <button class="remove-btn" data-city="${city}" title="Remover">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+
+        // Clique para carregar cidade
+        listItem.addEventListener('click', (e) => {
+            if (!e.target.closest('.remove-btn')) {
+                loadWeatherData(city);
+                toggleSidebar();
+                showNotification(`⛅ Carregando ${city}...`, 'info');
+            }
+        });
+
+        // Botão de remover
+        const removeBtn = listItem.querySelector('.remove-btn');
+        removeBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Impede de carregar a cidade
+            removeFromFavorites(city);
+        });
+
+        favoritesList.appendChild(listItem);
+    });
+}
+
+// Remover cidade dos favoritos
+function removeFromFavorites(city) {
+    let favorites = loadFavorites();
+    favorites = favorites.filter(fav => fav !== city);
+    saveFavorites(favorites);
+
+    // Atualizar interface
+    updateFavoritesList();
+    updateFavoriteButton(isCityFavorited(cityName.textContent.split(',')[0]));
+
+    showNotification(`❌ ${city} removido dos favoritos`, 'info');
+}
+
+// Limpar todos os favoritos
+function clearAllFavorites() {
+    if (loadFavorites().length === 0) {
+        showNotification('Não há favoritos para limpar', 'info');
+        return;
+    }
+
+    if (confirm('Tem certeza que deseja remover TODOS os favoritos?')) {
+        localStorage.removeItem('weatherFavorites');
+        updateFavoritesList();
+        updateFavoriteButton(false);
+        showNotification('✅ Todos os favoritos foram removidos', 'success');
+    }
+}
+
+// Inicializar sidebar
+function initFavoritesSidebar() {
+    updateFavoritesList();
+
+    // Event listeners
+    if (openSidebarBtn) {
+        openSidebarBtn.addEventListener('click', toggleSidebar);
+    }
+
+    if (closeSidebarBtn) {
+        closeSidebarBtn.addEventListener('click', toggleSidebar);
+    }
+
+    if (clearFavoritesBtn) {
+        clearFavoritesBtn.addEventListener('click', clearAllFavorites);
+    }
+
+    // Fechar sidebar ao clicar fora (opcional)
+    document.addEventListener('click', (e) => {
+        if (favoritesSidebar.classList.contains('open') &&
+            !favoritesSidebar.contains(e.target) &&
+            e.target !== openSidebarBtn &&
+            !openSidebarBtn.contains(e.target)) {
+                toggleSidebar();
+            }
+    });
 }
