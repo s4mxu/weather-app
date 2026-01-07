@@ -31,6 +31,9 @@ const themeToggle = document.getElementById('theme-toggle');
 // NOVO: Elementos do Sol
 const sunriseEl = document.getElementById('sunrise');
 const sunsetEl = document.getElementById('sunset');
+// NOVO: Botão de favorito
+const favoriteBtn = document.getElementById('favorite-btn');
+const favoriteIcon = favoriteBtn ? favoriteBtn.querySelector('i') : null;
 
 // ======================
 // FUNÇÕES AUXILIARES
@@ -211,7 +214,8 @@ async function fetchWeatherByCoords(lat, lon) {
 
 // Atualizar informações atuais
 function updateCurrentWeather(data) {
-    cityName.textContent = `${data.name}, ${data.sys.country}`;
+    const city = `${data.name}, ${data.sys.country}`;
+    cityName.textContent = city;
     currentDate.textContent = formatDate(data.dt);
     currentTemp.textContent = Math.round(data.main.temp); // Já vem em Celsius com units=metric
     weatherIcon.className = getWeatherIcon(data.weather[0].icon);
@@ -221,6 +225,10 @@ function updateCurrentWeather(data) {
     humidity.textContent = `${data.main.humidity} %`;
     windSpeed.textContent = `${msToKmh(data.wind.speed)} km/h`;
     pressure.textContent = `${data.main.pressure} hPa`;
+
+    // NOVO: Atualizar botão de favorito
+    const cityNameOnly = data.name;
+    updateFavoriteButton(isCityFavorited(cityNameOnly));
 
     // ====== NOVO: Nascer e Pôr do Sol ======
     if (data.sys && data.sys.sunrise && data.sys.sunset) {
@@ -392,6 +400,11 @@ suggestions.forEach(suggestion => {
 // Tema
 themeToggle.addEventListener('click', toggleTheme);
 
+// Favoritos
+if (favoriteBtn) {
+    favoriteBtn.addEventListener('click', toggleFavorite);
+}
+
 // ======================
 // INICIALIZAÇÃO
 // ======================
@@ -464,4 +477,105 @@ function updateThemeBasedOnTime(sunrise, sunset) {
     } else if (!isNight && document.body.classList.contains('dark-mode')) {
         enableLightMode();
     }
+}
+
+// ======================
+// SISTEMA DE FAVORITOS
+// ======================
+
+// Carregar favoritos do LocalStorage
+function loadFavorites() {
+    return JSON.parse(localStorage.getItem('weatherFavorites')) || [];
+}
+
+// Salvar favoritos do LocalStorage
+function saveFavorites(favorites) {
+    localStorage.setItem('weatherFavorites', JSON.stringify(favorites));
+}
+
+// Verificar se cidade atual é favorita
+function isCityFavorited(city) {
+    const favorites = loadFavorites();
+    return favorites.includes(city);
+}
+
+// Alternar favorito (adicionar/remover)
+function toggleFavorite() {
+    const city = cityName.textContent.split(',')[0].trim();
+
+    if (!city || city === '--') {
+        showNotification('Busque uma cidade primeiro!', 'error');
+        return;
+    }
+
+    let favorites = loadFavorites();
+
+    if (isCityFavorited(city)) {
+        // Remover dos favoritos
+        favorites = favorites.filter(fav => fav !== city);
+        updateFavoriteButton(false);
+        showNotification(`❌ ${city} removido dos favoritos`, 'info');
+    } else {
+        // Adicionar aos favoritos
+        favorites.push(city);
+        updateFavoriteButton(true);
+        showNotification(`❤️ ${city} adicionado aos favoritos!`, 'success');
+    }
+
+    saveFavorites(favorites);
+    updateFavoritesList(); // Vamos criar esta função depois
+}
+
+// Atualizar aparência o botão
+function updateFavoriteButton(isFavorited) {
+    if (!favoriteBtn || !favoriteIcon) return;
+
+    if (isFavorited) {
+        favoriteBtn.classList.add('favorited');
+        favoriteIcon.className = 'fas fa-heart';
+        favoriteBtn.title = 'Remover dos favoritos';
+    } else {
+        favoriteBtn.classList.remove('favorited');
+        favoriteIcon.className = 'far fa-heart';
+        favoriteBtn.title = 'Adicionar aos favoritos';
+    }
+}
+
+// Mostrar notificação
+function showNotification(message, type = 'info') {
+    // Criar elemento de notificação
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+
+    // Estilos básicos
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        border-radius: 8px;
+        color: white;
+        font-weight: 500;
+        z-index: 10000;
+        animation: slideIn 0.3s ease-out;
+        max-width: 300px;
+    `;
+
+    // Cores por tipo
+    if (type === 'success') {
+        notification.style.background = '#27ae60';
+    } else if (type === 'error') {
+        notification.style.background = '#e74c3c';
+    } else {
+        notification.style.background = '#3498db';
+    }
+
+    document.body.appendChild(notification);
+
+    // Remover após 3 segundos
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease-out';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
 }

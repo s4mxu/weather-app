@@ -534,6 +534,10 @@ body.dark-mode footer {
     color: #a0aec0;
 }
 
+body.dark-mode .favorite-btn:hover {
+    background: rgba(231, 76, 60, 0.2);
+}
+
 /* Botão de tema */
 .theme-toggle {
     position: absolute;
@@ -601,6 +605,39 @@ body.dark-mode #sunset {
     color: #8e44ad;
 }
 
+/* ====================== */
+/* BOTÃO DE FAVORITO */
+/* ====================== */
+
+.favorite-btn {
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    color: #e74c3c;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 50%;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+}
+
+.favorite-btn:hover {
+    background: rgba(231, 76, 60, 0.1);
+    transform: scale(1.1);
+}
+
+.favorite-btn.favorited {
+    color: #e74c3c;
+}
+
+.favorite-btn.favorited i {
+    font-weight: 900; /* Coração preenchido */
+}
+
 /* Animação sutil para os ícones */
 @keyframes sunGlow {
     0%, 100% { filter: drop-shadow(0 0 5px rgba(246, 173, 85, 0.5)); }
@@ -660,4 +697,48 @@ body.dark-mode #sunset {
     button {
         min-height: 44px; /* Tamanho mínimo para dedo */
     }
+}
+
+@media (max-width: 768px) {
+    .favorite-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 1.6rem;
+    }
+
+    .location > div {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}
+
+/* ====================== */
+/* NOTIFICAÇÕES */
+/* ====================== */
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+/* Tema escuro para notificações */
+body.dark-mode .notification {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
