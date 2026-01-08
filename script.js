@@ -5,8 +5,55 @@ const API_KEY = '1350f2428dfc8114d15f2b57b5cdcae2';
 const BASE_URL = 'https://api.openweathermap.org/data/2.5';
 const ICON_URL = 'https://openweathermap.org/img/wn';
 
+// ======================
+// API DE GEOLOCALIZAÇÃO REVERSA (Para obter estado)
+// ======================
+const GEO_API_URL = 'https://api.bigdatacloud.net/data/reverse-geocode-client';
+
+// Mapeamento de nomes de estados para siglas
+const ESTADOS_BRASIL = {
+    'Acre': 'AC',
+    'Alagoas': 'AL',
+    'Amapá': 'AP',
+    'Amazonas': 'AM',
+    'Bahia': 'BA',
+    'Ceará': 'CE',
+    'Distrito Federal': 'DF',
+    'Espírito Santo': 'ES',
+    'Goiás': 'GO',
+    'Maranhão': 'MA',
+    'Mato Grosso': 'MT',
+    'Mato Grosso do Sul': 'MS',
+    'Minas Gerais': 'MG',
+    'Pará': 'PA',
+    'Paraíba': 'PB',
+    'Paraná': 'PR',
+    'Pernambuco': 'PE',
+    'Piauí': 'PI',
+    'Rio de Janeiro': 'RJ',
+    'Rio Grande do Norte': 'RN',
+    'Rio Grande do Sul': 'RS',
+    'Rondônia': 'RO',
+    'Roraima': 'RR',
+    'Santa Catarina': 'SC',
+    'São Paulo': 'SP',
+    'Sergipe': 'SE',
+    'Tocantins': 'TO'
+};
+
+// Lista de cidades brasileiras (para evitar confusão com cidades homônimas no exterior)
+const CIDADES_BRASILEIRAS = [
+    'Salvador', 'São Paulo', 'Rio de Janeiro', 'Brasília', 'Fortaleza',
+    'Belo Horizonte', 'Manaus', 'Curitiba', 'Recife', 'Porto Alegre',
+    'Belém', 'Goiânia', 'Guarulhos', 'Campinas', 'São Luís', 'Maceió',
+    'Teresina', 'Natal', 'João Pessoa', 'Aracaju', 'Florianópolis',
+    'Vitória', 'Cuiabá', 'Campo Grande', 'Teresópolis', 'Terezinha'
+];
+
 // Cidade padrão (caso o usuário não permita localização)
 const DEFAULT_CITY = 'São Paulo'; // Corrigi para minúsculo (funciona melhor)
+
+
 
 // ======================
 // ELEMENTOS DO DOM
@@ -145,6 +192,44 @@ function calculateDaylight(sunrise, sunset) {
     return `${hours}h ${minutes}min`;
 }
 
+// Obter sigla do estado a partir das coordenadas
+async function getEstadoFromCoords(lat, lon) {
+    try {
+        const response = await fetch(
+            `${GEO_API_URL}?latitude=${lat}&longitude=${lon}&localityLanguage=pt`
+        );
+        
+        if (!response.ok) {
+            throw new Error('Erro ao buscar localização');
+        }
+        
+        const data = await response.json();
+        
+        // Tenta obter o estado de diferentes formas
+        const estado = data.principalSubdivision || data.region || data.state;
+        
+        if (estado) {
+            // Remove "State" ou "Estado" do nome, se existir
+            const estadoLimpo = estado.replace('State', '').replace('Estado', '').trim();
+            
+            // Tenta encontrar no nosso mapeamento
+            const sigla = ESTADOS_BRASIL[estadoLimpo];
+            
+            if (sigla) {
+                return sigla;
+            }
+            
+            // Se não encontrou no mapeamento, retorna as primeiras letras
+            return estadoLimpo.substring(0, 2).toUpperCase();
+        }
+        
+        return 'BR'; // Fallback
+    } catch (error) {
+        console.error('Erro ao buscar estado:', error);
+        return 'BR'; // Fallback
+    }
+}
+
 // ======================
 // FUNÇÕES DA API
 // ======================
@@ -221,11 +306,18 @@ async function fetchWeatherByCoords(lat, lon) {
 // ======================
 
 // Atualizar informações atuais
-function updateCurrentWeather(data) {
-    const city = `${data.name}, ${data.sys.country}`;
-    cityName.textContent = city;
+async function updateCurrentWeather(data) {
+    let estadoSigla = 'BR'; // Valor padrão
+    
+    // Tentar obter a sigla do estado
+    if (data.coord) {
+        estadoSigla = await getEstadoFromCoords(data.coord.lat, data.coord.lon);
+    }
+    
+    const cidade = `${data.name}, ${estadoSigla}`;
+    cityName.textContent = cidade;
     currentDate.textContent = formatDate(data.dt);
-    currentTemp.textContent = Math.round(data.main.temp); // Já vem em Celsius com units=metric
+    currentTemp.textContent = Math.round(data.main.temp);
     weatherIcon.className = getWeatherIcon(data.weather[0].icon);
     weatherDesc.textContent = data.weather[0].description;
 
@@ -234,75 +326,77 @@ function updateCurrentWeather(data) {
     windSpeed.textContent = `${msToKmh(data.wind.speed)} km/h`;
     pressure.textContent = `${data.main.pressure} hPa`;
 
-    // NOVO: Atualizar botão de favorito
+    // Atualizar botão de favorito
     const cityNameOnly = data.name;
     updateFavoriteButton(isCityFavorited(cityNameOnly));
 
-    // ====== NOVO: Nascer e Pôr do Sol ======
+    // Nascer e Pôr do Sol
     if (data.sys && data.sys.sunrise && data.sys.sunset) {
-        // Formatar e mostrar horários
         sunriseEl.textContent = formatTime(data.sys.sunrise);
         sunsetEl.textContent = formatTime(data.sys.sunset);
 
-        // Mostrar duração do dia no console
         const daylight = calculateDaylight(data.sys.sunrise, data.sys.sunset);
         console.log(`🌅 Nascer: ${formatTime(data.sys.sunrise)} | 🌇 Pôr: ${formatTime(data.sys.sunset)} | ☀️ Dia: ${daylight}`);
 
-        // Atualizar tema baseado no horário local do usuário
         updateThemeBasedOnTime(data.sys.sunrise, data.sys.sunset);
     } else {
-        // Fallback caso não tenha dados
         sunriseEl.textContent = '--:--';
         sunsetEl.textContent = '--:--';
     }
-
-    // Atualizar tema baseado no horário (opcional)
-    if (data.sys && data.sys.sunrise && data.sys.sunset) {
-        updateThemeBasedOnTime(data.sys.sunrise, data.sys.sunset);
-    }
 }
 
-// Atualizar previsão
+// Atualizar previsão (VERSÃO SIMPLIFICADA E CORRETA)
 function updateForecast(forecastData) {
     // Limpar Container
     forecastContainer.innerHTML = '';
 
-    // Agrupar por dia (a API retorna de 3 em 3 horas)
+    // Agrupar por dia
     const dailyForecasts = {};
+    const hoje = new Date().toLocaleDateString('pt-BR');
 
     forecastData.list.forEach(item => {
         const date = new Date(item.dt * 1000).toLocaleDateString('pt-BR');
-
+        
         if (!dailyForecasts[date]) {
             dailyForecasts[date] = {
                 temps: [],
                 icons: [],
-                descriptions: []
+                descriptions: [],
+                dateObj: new Date(item.dt * 1000)
             };
         }
-
+        
         dailyForecasts[date].temps.push(item.main.temp);
         dailyForecasts[date].icons.push(item.weather[0].icon);
-        dailyForecasts[date].descriptions.push(item.weather[0].description); // CORRIGIDO: description singular
+        dailyForecasts[date].descriptions.push(item.weather[0].description);
     });
 
-    // Pegar apenas os próximos 5 dias (excluindo hoje)
-    const today = new Date().toLocaleDateString('pt-BR');
+    // Converter para array, remover hoje, ordenar por data
     const nextDays = Object.entries(dailyForecasts)
-        .filter(([date]) => date !== today)
+        .filter(([date]) => date !== hoje)
+        .sort((a, b) => a[1].dateObj - b[1].dateObj)
         .slice(0, 5);
 
-    // Criar cards para cada dia
-    nextDays.forEach(([date, data]) => {
-        const maxTemp = Math.max(...data.temps.map(temp => Math.round(temp)));
-        const minTemp = Math.min(...data.temps.map(temp => Math.round(temp)));
-        const mostCommonIcon = getMostCommon(data.icons);
+    if (nextDays.length === 0) {
+        forecastContainer.innerHTML = '<div class="forecast-day"><p>Carregando...</p></div>';
+        return;
+    }
 
+    // Criar cards
+    nextDays.forEach(([date, data]) => {
+        const maxTemp = Math.round(Math.max(...data.temps));
+        const minTemp = Math.round(Math.min(...data.temps));
+        const mostCommonIcon = getMostCommon(data.icons);
+        
+        // Formatar: "Ter 12"
+        const dayName = data.dateObj.toLocaleDateString('pt-BR', { weekday: 'short' });
+        const dayNumber = data.dateObj.getDate();
+        
         const forecastDay = document.createElement('div');
         forecastDay.className = 'forecast-day';
 
         forecastDay.innerHTML = `
-            <p class="day">${formatDay(new Date(date).getTime() / 1000)}</p>
+            <p class="day">${dayName} ${dayNumber}</p>
             <i class="forecast-icon ${getWeatherIcon(mostCommonIcon)}"></i>
             <p class="desc">${data.descriptions[0]}</p>
             <div class="temp">
@@ -328,18 +422,25 @@ function getMostCommon(arr) {
 
 // Carregar dados de uma cidade
 async function loadWeatherData(city) {
-    const currentData = await fetchCurrentWeather(city);
+    let cidadeParaBuscar = city;
+    
+    // Se for uma cidade brasileira conhecida, adiciona ",BR" para evitar confusão
+    if (CIDADES_BRASILEIRAS.includes(city)) {
+        cidadeParaBuscar = `${city},BR`;
+    }
+    
+    const currentData = await fetchCurrentWeather(cidadeParaBuscar);
 
     if (currentData) {
         updateCurrentWeather(currentData);
 
         // Buscar previsão
-        const forecastData = await fetchForecast(city);
+        const forecastData = await fetchForecast(cidadeParaBuscar);
         if(forecastData) {
             updateForecast(forecastData);
         }
 
-        // Salvar última cidade pesquisada
+        // Salvar última cidade pesquisada (sem o ,BR)
         localStorage.setItem('lastCity', city);
     }
 }
